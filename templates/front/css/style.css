@@ -1,0 +1,28 @@
+
+/* Testimonials view page */
+
+.testimonial-view__user {
+	text-align: center;
+	margin-bottom: 20px;
+}
+
+.testimonial-view__user img {
+	display: inline-block;
+	margin-bottom: 10px;
+}
+
+.testimonial-view__user p {
+	color: #999;
+	font-size: 16px;
+}
+
+.testimonial-view__text {
+	margin-bottom: 20px;
+}
+
+.testimonial-view__reply {
+	margin-left: 40px;
+	padding-left: 20px;
+	border-left: 4px solid #ddd;
+	font-style: italic;
+}

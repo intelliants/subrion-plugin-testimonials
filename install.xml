@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<plugin name="testimonials">
+	<title>Testimonials</title>
+	<summary>Allows to display testimonials section at the site</summary>
+	<author>Intelliants LLC</author>
+	<contributor>Intelliants LLC</contributor>
+	<version>3.3.1</version>
+	<date>2015-06-24</date>
+	<compatibility>3.3.3</compatibility>
+
+	<actions>
+		<action name="testimonials_view" url="testimonials/" icon="list" order="1" pages="testimonials:add, testimonials:edit">View</action>
+		<action name="testimonials_add" url="testimonials/add/" icon="plus" order="2" pages="testimonials">Add</action>
+	</actions>
+
+	<adminpages>
+		<page group="content" name="testimonials" menus="menu" url="testimonials/" filename="index" order="50">Testimonials</page>
+	</adminpages>
+
+	<pages>
+		<page name="testimonials" url="testimonials/" menus="bottom">Testimonials</page>
+		<page name="testimonials_add" url="testimonials/add/" action="add" parent="testimonials">Add testimonial</page>
+	</pages>
+
+	<permissions>
+		<object id="testimonials" action="add" access="1">Add testimonial</object>
+	</permissions>
+
+	<phrases>
+		<phrase category="admin" key="edit_testimonial">Edit Testimonial</phrase>
+		<phrase category="admin" key="are_you_sure_to_delete_selected_testimonial">Are you sure you want to delete this testimonial?</phrase>
+		<phrase category="admin" key="are_you_sure_to_delete_selected_testimonials">Are you sure you want to delete these testimonials?</phrase>
+		<phrase category="admin" key="replied">Replied</phrase>
+		<phrase category="admin" key="reply">Reply</phrase>
+		<phrase category="common" key="add_testimonial">Add Testimonial</phrase>
+		<phrase category="common" key="testimonials_added">Testimonial has been added.</phrase>
+		<phrase category="common" key="testimonials">Testimonials</phrase>
+		<phrase category="common" key="testimon_body_len">Testimonial body length must be :num chars.</phrase>
+		<phrase category="frontend" key="admin_reply">Reply</phrase>
+		<phrase category="frontend" key="no_testimonials_yet"><![CDATA[No testimonials. <a href="testimonials/add/">Click here</a> to add your testimonials.]]></phrase>
+		<phrase category="frontend" key="read_more">Read More</phrase>
+		<phrase category="frontend" key="add_yours">Add Yours</phrase>
+		<phrase category="frontend" key="testimonial_body">Body</phrase>
+		<phrase category="frontend" key="testimonial_slogan"><![CDATA[Please read what our customers think of us. So many people cannot be wrong. If you want to share your testimonial please <a href="testimonials/add/" class="b">click here</a>. Thanks in advance.]]></phrase>
+		<phrase category="frontend" key="upload_avatar">Upload Avatar</phrase>
+	</phrases>
+
+	<configgroup name="testimonials">Testimonials</configgroup>
+
+	<config group="testimonials" type="divider" name="testimoinials_plugin">Testimonials Plugin</config>
+	<config group="testimonials" type="radio" name="testimonials_approve" values="1,0" description="Auto Approval">0</config>
+	<config group="testimonials" type="text" name="testimonials_number" description="Number of displayed Testimonials in Box">1</config>
+	<config group="testimonials" type="text" name="testimonials_max" description="Testimonials Snippet Length">300</config>
+	<config group="testimonials" type="text" name="testimonials_num_on_page" description="Number of displayed Testimonials on a page">50</config>
+	<config group="testimonials" type="text" name="testimonials_max_len" description="Max testimonials text length">3000</config>
+	<config group="testimonials" type="text" name="testimonials_min_len" description="Min testimonials text length">10</config>
+
+	<hooks>
+		<hook name="bootstrap" page_type="front">
+			<![CDATA[
+if (iaView::REQUEST_HTML == $iaView->getRequestType())
+{
+	$array = $iaDb->all(iaDb::ALL_COLUMNS_SELECTION, "`status` = 'active' AND `lang` = '".IA_LANGUAGE."' AND `date` <= NOW() ORDER BY RAND()", 0, $iaCore->get('testimonials_number'), 'testimonials');
+	$iaView->assign('block_testimonials', $array);
+}
+			]]>
+		</hook>
+	</hooks>
+
+	<blocks>
+		<block title="Testimonials" name="testimonials" position="right" collapsible="1" type="smarty" filename="plugin:testimonials:block.testimonials.tpl"><![CDATA[]]></block>
+	</blocks>
+
+	<install>
+		<sql>
+			<![CDATA[
+CREATE TABLE IF NOT EXISTS `{prefix}testimonials` (
+	`id` int(4) NOT NULL auto_increment,
+	`name` varchar(150) NOT NULL,
+	`avatar` text NULL,
+	`email` varchar(50) default NULL,
+	`url` varchar(150) default NULL,
+	`body` text NOT NULL,
+	`reply` text NULL,
+	`date` date NOT NULL,
+	`status` enum('inactive','active') NOT NULL default 'inactive',
+	`lang` varchar(2) NOT NULL,
+	PRIMARY KEY  (`id`)
+) {mysql_version};
+			]]>
+		</sql>
+	</install>
+
+	<uninstall>
+		<sql>
+			<![CDATA[
+DROP TABLE IF EXISTS `{prefix}testimonials`;
+			]]>
+		</sql>
+	</uninstall>
+</plugin>
