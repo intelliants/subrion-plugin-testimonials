@@ -4,9 +4,9 @@
 	<summary>Allows to display testimonials section at the site</summary>
 	<author>Intelliants LLC</author>
 	<contributor>Intelliants LLC</contributor>
-	<version>3.3.1</version>
-	<date>2015-06-24</date>
-	<compatibility>3.3.3</compatibility>
+	<version>4.0.0</version>
+	<date>2015-12-23</date>
+	<compatibility>4.0</compatibility>
 
 	<actions>
 		<action name="testimonials_view" url="testimonials/" icon="list" order="1" pages="testimonials:add, testimonials:edit">View</action>
@@ -49,11 +49,16 @@
 
 	<config group="testimonials" type="divider" name="testimoinials_plugin">Testimonials Plugin</config>
 	<config group="testimonials" type="radio" name="testimonials_approve" values="1,0" description="Auto Approval">0</config>
-	<config group="testimonials" type="text" name="testimonials_number" description="Number of displayed Testimonials in Box">1</config>
-	<config group="testimonials" type="text" name="testimonials_max" description="Testimonials Snippet Length">300</config>
+	<config group="testimonials" type="text" name="testimonials_number" description="Number of displayed Testimonials in Box">4</config>
+	<config group="testimonials" type="text" name="testimonials_max" description="Testimonials Body Length for Testimonials block">300</config>
+	<config group="testimonials" type="radio" name="testimonials_use_editor" values="1,0" description="Use WYSIWYG editor for Testimonials Body">1</config>
 	<config group="testimonials" type="text" name="testimonials_num_on_page" description="Number of displayed Testimonials on a page">50</config>
 	<config group="testimonials" type="text" name="testimonials_max_len" description="Max testimonials text length">3000</config>
 	<config group="testimonials" type="text" name="testimonials_min_len" description="Min testimonials text length">10</config>
+
+	<tooltips>
+		<tooltip key="testimonials_use_editor"> on Add Testimonial page</tooltip>
+	</tooltips>
 
 	<hooks>
 		<hook name="bootstrap" page_type="front">
@@ -68,7 +73,7 @@ if (iaView::REQUEST_HTML == $iaView->getRequestType())
 	</hooks>
 
 	<blocks>
-		<block title="Testimonials" name="testimonials" position="right" collapsible="1" type="smarty" filename="plugin:testimonials:block.testimonials.tpl"><![CDATA[]]></block>
+		<block title="Testimonials" name="testimonials" position="verybottom" collapsible="0" type="smarty" filename="block.testimonials"><![CDATA[]]></block>
 	</blocks>
 
 	<install>

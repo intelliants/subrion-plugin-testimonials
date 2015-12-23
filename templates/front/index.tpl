@@ -1,37 +1,47 @@
 {ia_add_media files='css: _IA_URL_plugins/testimonials/templates/front/css/style'}
 
 {if iaCore::ACTION_ADD == $pageAction}
-	<form method="post" enctype="multipart/form-data" action="{$smarty.const.IA_SELF}" id="testimonials" class="ia-form">
+	<form method="post" enctype="multipart/form-data" action="{$smarty.const.IA_SELF}" id="testimonials" class="ia-form add-testimonial">
 		{preventCsrf}
 
 		<div class="fieldset-wrapper">
-			<div class="control-group">
-				<label class="control-label" for="name">{lang key='fullname'}:</label>
-				<input type="text" name="name" id="name" class="text" value="{if isset($smarty.post.name)}{$smarty.post.name|escape:'html'}{/if}" >
+			<div class="form-group">
+				<label>{lang key='fullname'}:
+					<input type="text" name="name" id="name" class="form-control" value="{if isset($smarty.post.name)}{$smarty.post.name|escape:'html'}{/if}" >
+				</label>
 			</div>
 
-			<label class="control-label" for="photo">{lang key='avatar'}</label>
-			<div class="upload-wrap">
-				<div class="input-append">
-					<span class="span2 uneditable-input">{lang key='upload_avatar'}</span>
-					<span class="add-on">{lang key='browse'}</span>
+			<div class="form-group">
+				<label for="photo">{lang key='avatar'}</label>
+				<div class="input-group js-files">
+					<span class="input-group-btn">
+						<span class="btn btn-primary btn-file">{lang key='browse'}<input type="file" name="photo" id="photo" class="form-control"></span>
+					</span>
+					<input type="text" class="form-control js-file-name" readonly="" value="">
 				</div>
-				<input type="file" name="photo" id="photo" class="upload-hidden">
 			</div>
 
-			<div class="control-group">
-				<label class="control-label" for="url">{lang key='url'}:</label>
-				<input type="text" name="url" id="url" class="text" value="{if isset($smarty.post.url)}{$smarty.post.url|escape:'html'}{/if}" placeholder="http://">
+
+			<div class="form-group">
+				<label>{lang key='url'}:
+					<input type="text" name="url" id="url" class="form-control" value="{if isset($smarty.post.url)}{$smarty.post.url|escape:'html'}{/if}" placeholder="http://">
+				</label>
 			</div>
 
-			<div class="control-group">
-				<label class="control-label" for="email">{lang key='email'}:</label>
-				<input type="text" name="email" id="email" class="text" value="{if isset($smarty.post.email)}{$smarty.post.email|escape:'html'}{/if}">
+			<div class="form-group">
+				<label>{lang key='email'}:
+					<input type="text" name="email" id="email" class="form-control" value="{if isset($smarty.post.email)}{$smarty.post.email|escape:'html'}{/if}">
+				</label>
 			</div>
 
-			<div class="control-group">
-				<label class="control-label" for="body">{lang key='testimonial_body'}:</label>
-				<textarea name="body" id="body" class="input-block-level" rows="5">{if isset($smarty.post.body)}{$smarty.post.body|escape:'html'}{/if}</textarea>
+			<div class="form-group form-group--textarea">
+				<label>{lang key='testimonial_body'}:
+					{if $core.config.testimonials_use_editor}
+						{ia_wysiwyg value={(!empty($smarty.post.body)) ? $smarty.post.body : ''} name='body'}
+					{else}
+						<textarea name="body" id="body" class="form-control" rows="5">{if isset($smarty.post.body)}{$smarty.post.body|escape:'html'}{/if}</textarea>
+					{/if}
+				</label>
 				{ia_add_js}
 					jQuery(function($)
 					{
@@ -48,7 +58,7 @@
 			</div>
 
 			{include file='captcha.tpl'}
-			<div class="form-actions">
+			<div class="">
 				<button type="submit" class="btn btn-primary">{lang key='send'}</button>
 			</div>
 		</div>
@@ -67,7 +77,7 @@
 			</div>
 
 			<div class="testimonial-view__text">
-				{$testimonial.body}
+				{$testimonial.body|html_entity_decode:2:"UTF-8"}
 			</div>
 
 			{if isset($testimonial.reply)}
@@ -78,11 +88,11 @@
 			{/if}
 		</div>
 	{elseif $testimonials}
-		<div class="slogan">{lang key='testimonial_slogan'}</div>
-		<div class="ia-items">
+		<div class="slogan m-b-md">{lang key='testimonial_slogan'}</div>
+		<div class="ia-items testimonials-list">
 			{foreach $testimonials as $testimonial}
-				<div class="media ia-item ia-item-bordered">
-					<div class="pull-left">
+				<div class="media ia-item ia-item--border">
+					<div class="pull-left testimonials-list__avatar">
 						{if $testimonial.avatar}
 							{printImage imgfile=$testimonial.avatar width=100 height=100 class='media-object'}
 						{else}
@@ -91,12 +101,12 @@
 					</div>
 
 					<div class="media-body">
-						<a href='{$smarty.const.IA_URL}testimonials/{$testimonial.id}/'>{$testimonial.name}</a>
-						<div class="ia-item-body">{$testimonial.body|truncate:200:"... <a href='{$smarty.const.IA_URL}testimonials/{$testimonial.id}/'>read more</a>":true}</div>
+						<div class="ia-item-body">{$testimonial.body|html_entity_decode:2:"UTF-8"|truncate:200:"... <a href='{$smarty.const.IA_URL}testimonials/{$testimonial.id}/'>read more</a>":true}</div>
 					</div>
-					<div class="ia-item-panel">
+					<div class="ia-item-panel clearfix">
+						<span class="panel-item panel-item--name pull-left">{$testimonial.name}</span>
 						<span class="panel-item pull-right">
-							<i class="icon-calendar"></i> {$testimonial.date|date_format:$core.config.date_format}
+							<span class="fa fa-calendar"></span> {$testimonial.date|date_format:$core.config.date_format}
 						</span>
 					</div>
 				</div>
