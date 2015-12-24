@@ -5,7 +5,7 @@
 	<author>Intelliants LLC</author>
 	<contributor>Intelliants LLC</contributor>
 	<version>4.0.0</version>
-	<date>2015-12-23</date>
+	<date>2015-12-24</date>
 	<compatibility>4.0</compatibility>
 
 	<actions>
@@ -36,7 +36,7 @@
 		<phrase category="common" key="testimonials_added">Testimonial has been added.</phrase>
 		<phrase category="common" key="testimonials">Testimonials</phrase>
 		<phrase category="common" key="testimon_body_len">Testimonial body length must be :num chars.</phrase>
-		<phrase category="frontend" key="admin_reply">Reply</phrase>
+		<phrase category="frontend" key="admin_reply">Administrator replied:</phrase>
 		<phrase category="frontend" key="no_testimonials_yet"><![CDATA[No testimonials. <a href="testimonials/add/">Click here</a> to add your testimonials.]]></phrase>
 		<phrase category="frontend" key="read_more">Read More</phrase>
 		<phrase category="frontend" key="add_yours">Add Yours</phrase>
@@ -51,6 +51,7 @@
 	<config group="testimonials" type="radio" name="testimonials_approve" values="1,0" description="Auto Approval">0</config>
 	<config group="testimonials" type="text" name="testimonials_number" description="Number of displayed Testimonials in Box">4</config>
 	<config group="testimonials" type="text" name="testimonials_max" description="Testimonials Body Length for Testimonials block">300</config>
+	<config group="testimonials" type="text" name="testimonials_max_page" description="Testimonials Body Length for Testimonials page">350</config>
 	<config group="testimonials" type="radio" name="testimonials_use_editor" values="1,0" description="Use WYSIWYG editor for Testimonials Body">1</config>
 	<config group="testimonials" type="text" name="testimonials_num_on_page" description="Number of displayed Testimonials on a page">50</config>
 	<config group="testimonials" type="text" name="testimonials_max_len" description="Max testimonials text length">3000</config>

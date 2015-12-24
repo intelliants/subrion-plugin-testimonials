@@ -1,10 +1,5 @@
 /* Testimonials view page start */
 
-.testimonial-view__user {
-	text-align: center;
-	margin-bottom: 20px;
-}
-
 .testimonial-view__user img {
 	display: inline-block;
 	margin-bottom: 10px;
@@ -15,15 +10,10 @@
 	font-size: 16px;
 }
 
-.testimonial-view__text {
-	margin-bottom: 20px;
-}
-
 .testimonial-view__reply {
-	margin-left: 40px;
-	padding-left: 20px;
-	border-left: 4px solid #ddd;
+	font-size: 15px;
 	font-style: italic;
+	border-left: 4px solid #ddd;
 }
 /* Testimonials view page end */
 
@@ -118,8 +108,13 @@
 	font-style: italic;
 }
 
-.testimonials-list__avatar {
-	margin-bottom: 10px;
+.testimonials-list .testimonials-list__avatar {
+	margin-bottom: 15px;
+	padding-right: 15px;
+}
+
+.testimonials-list__more span {
+	margin-left: 5px;
 }
 
 .testimonial-author-name {

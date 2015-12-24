@@ -42,7 +42,7 @@
 			<div class="row">
 				<label class="col col-lg-2 control-label" for="body">{lang key='body'}</label>
 				<div class="col col-lg-8">
-					{ia_wysiwyg name="body" value=$testimonials.body}
+					{ia_wysiwyg name="body" value={$testimonials.body|html_entity_decode:2:"UTF-8"}}
 				</div>
 			</div>
 

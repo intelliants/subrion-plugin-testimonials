@@ -66,22 +66,22 @@
 {else}
 	{if isset($testimonial)}
 		<div class="testimonial-view">
-			<div class="testimonial-view__user">
+			<div class="testimonial-view__user text-center m-b">
 				{if $testimonial.avatar}
-					{printImage imgfile=$testimonial.avatar width=100 height=100 class='img-circle'}
+					{printImage imgfile=$testimonial.avatar width=100 height=100 class='img-circle img-responsive'}
 				{else}
-					<img class="img-circle" src="{$img}no-avatar.png" alt="{$testimonial.name}">
+					<img class="img-circle img-responsive" src="{$img}no-avatar.png" alt="{$testimonial.name}">
 				{/if}
 
 				<p><b>{$testimonial.name}</b> {lang key='on'} {$testimonial.date|date_format:$core.config.date_format}</p>
 			</div>
 
-			<div class="testimonial-view__text">
+			<div class="testimonial-view__text m-b">
 				{$testimonial.body|html_entity_decode:2:"UTF-8"}
 			</div>
 
 			{if isset($testimonial.reply)}
-				<div class="testimonial-view__reply">
+				<div class="testimonial-view__reply m-b m-l p-l">
 					<h4>{lang key='admin_reply'}</h4>
 					{$testimonial.reply}
 				</div>
@@ -101,7 +101,7 @@
 					</div>
 
 					<div class="media-body">
-						<div class="ia-item-body">{$testimonial.body|html_entity_decode:2:"UTF-8"|truncate:200:"... <a href='{$smarty.const.IA_URL}testimonials/{$testimonial.id}/'>read more</a>":true}</div>
+						<div class="ia-item-body">{$testimonial.body|html_entity_decode:2:"UTF-8"|truncate:$core.config.testimonials_max_page:"... <a href='{$smarty.const.IA_URL}testimonials/{$testimonial.id}/' class='testimonials-list__more'>read more<span class='fa fa-long-arrow-right'></span></a>":true}</div>
 					</div>
 					<div class="ia-item-panel clearfix">
 						<span class="panel-item panel-item--name pull-left">{$testimonial.name}</span>
