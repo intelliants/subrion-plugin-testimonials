@@ -75,8 +75,10 @@
 			<div class="row">
 				<label class="col col-lg-2 control-label" for="input-date">{lang key='date'}</label>
 				<div class="col col-lg-4">
+					{assign var='default_date' value=($testimonials.date && !in_array($testimonials.date, array('0000-00-00', '0000-00-00 00:00:00'))) ? {$testimonials.date|escape:'html'} : ''}
+
 					<div class="input-group">
-						<input type="text" class="js-datepicker" name="date" id="input-date" value="{$testimonials.date}">
+						<input type="text" class="js-datepicker" name="date" id="input-date" value="{$default_date}" data-date-format="YYYY-MM-DD">
 						<span class="input-group-addon js-datepicker-toggle"><i class="i-calendar"></i></span>
 					</div>
 				</div>
@@ -99,4 +101,4 @@
 	</div>
 </form>
 
-{ia_add_media files='datepicker'}
+{ia_add_media files='moment, datepicker'}
