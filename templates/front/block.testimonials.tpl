@@ -6,16 +6,12 @@
 					<div class="b-testimonial">
 						<div class="b-testimonial__content">
 							{$one_testimonials.body|html_entity_decode:2:"UTF-8"|truncate:$core.config.testimonials_max:"..."}
-							<p class="m-b-0"><a href="testimonials/{$one_testimonials.id}">Read more</a></p>
+							<p class="m-b-0"><a href="testimonials/{$one_testimonials.id}/">Read more</a></p>
 						</div>
 
 						<div class="b-testimonial__author">
-							{if $one_testimonials.avatar}
-								{printImage imgfile=$one_testimonials.avatar width=60 height=60 class='img-circle'}
-							{else}
-								<img class="img-circle" src="{$img}no-avatar.png" alt="{$one_testimonials.name}" width="60" height="60">
-							{/if}
-							<p class="b-testimonial__author__name">{$one_testimonials.name}</p>
+							{ia_image file=$one_testimonials.avatar width=60 height=60 class='img-circle' alt=$one_testimonials.name gravatar=true}
+							<p class="b-testimonial__author__name">{$one_testimonials.name|escape:'html'}</p>
 						</div>
 					</div>
 				</div>

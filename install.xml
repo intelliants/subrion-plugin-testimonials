@@ -4,9 +4,9 @@
 	<summary>Allows to display testimonials section at the site</summary>
 	<author>Intelliants LLC</author>
 	<contributor>Intelliants LLC</contributor>
-	<version>4.0.0</version>
-	<date>2015-12-24</date>
-	<compatibility>4.0</compatibility>
+	<version>4.1.0</version>
+	<date>2017-02-08</date>
+	<compatibility>4.1</compatibility>
 
 	<actions>
 		<action name="testimonials_view" url="testimonials/" icon="list" order="1" pages="testimonials:add, testimonials:edit">View</action>
@@ -14,7 +14,7 @@
 	</actions>
 
 	<adminpages>
-		<page group="content" name="testimonials" menus="menu" url="testimonials/" filename="index" order="50">Testimonials</page>
+		<page group="content" name="testimonials" menus="menu" url="testimonials/" order="50">Testimonials</page>
 	</adminpages>
 
 	<pages>
@@ -27,15 +27,17 @@
 	</permissions>
 
 	<phrases>
-		<phrase category="admin" key="edit_testimonial">Edit Testimonial</phrase>
 		<phrase category="admin" key="are_you_sure_to_delete_selected_testimonial">Are you sure you want to delete this testimonial?</phrase>
 		<phrase category="admin" key="are_you_sure_to_delete_selected_testimonials">Are you sure you want to delete these testimonials?</phrase>
+		<phrase category="admin" key="edit_testimonial">Edit Testimonial</phrase>
 		<phrase category="admin" key="replied">Replied</phrase>
 		<phrase category="admin" key="reply">Reply</phrase>
+
 		<phrase category="common" key="add_testimonial">Add Testimonial</phrase>
 		<phrase category="common" key="testimonials_added">Testimonial has been added.</phrase>
 		<phrase category="common" key="testimonials">Testimonials</phrase>
 		<phrase category="common" key="testimon_body_len">Testimonial body length must be :num chars.</phrase>
+
 		<phrase category="frontend" key="admin_reply">Administrator replied:</phrase>
 		<phrase category="frontend" key="no_testimonials_yet"><![CDATA[No testimonials. <a href="testimonials/add/">Click here</a> to add your testimonials.]]></phrase>
 		<phrase category="frontend" key="read_more">Read More</phrase>
@@ -81,7 +83,7 @@ if (iaView::REQUEST_HTML == $iaView->getRequestType())
 		<sql>
 			<![CDATA[
 CREATE TABLE IF NOT EXISTS `{prefix}testimonials` (
-	`id` int(4) NOT NULL auto_increment,
+	`id` smallint(5) unsigned NOT NULL auto_increment,
 	`name` varchar(150) NOT NULL,
 	`avatar` text NULL,
 	`email` varchar(50) default NULL,

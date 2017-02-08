@@ -24,217 +24,115 @@
  *
  ******************************************************************************/
 
-$iaDb->setTable('testimonials');
-
-if (iaView::REQUEST_JSON == $iaView->getRequestType())
+class iaBackendController extends iaAbstractControllerPluginBackend
 {
-	$iaGrid = $iaCore->factory('grid', iaCore::ADMIN);
+	protected $_name = 'testimonials';
 
-	switch ($pageAction)
+	protected $_gridColumns = '`id`, `name`, `email`, `url`, `body`, IF(`reply` IS NULL, 0, 1) `replied`, `date`, `status`, `lang`, 1 `update`, 1 `delete`';
+	protected $_gridFilters = array('status' => self::EQUAL);
+
+	protected $_phraseAddSuccess = 'testimonials_added';
+
+
+	public function init()
 	{
-		case iaCore::ACTION_READ:
-
-			switch ($_GET['get'])
-			{
-				case 'alias':
-					iaUtil::loadUTF8Functions('ascii', 'utf8_to_ascii');
-
-					$title = $_GET['title'];
-					utf8_is_ascii($title) || $title = utf8_to_ascii($title);
-
-					$output['url'] = IA_PLUGIN_URL . $iaDb->getNextId() . '-' . iaSanitize::alias($title) . '.html';
-
-					break;
-
-				default:
-
-					$start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
-					$limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 15;
-					$order = isset($_GET['sort']) ? " ORDER BY `{$_GET['sort']}` {$_GET['dir']}" : '';
-					$where = $values = array();
-
-					if (isset($_GET['status']) && in_array($_GET['status'], array(iaCore::STATUS_ACTIVE, iaCore::STATUS_INACTIVE)))
-					{
-						$where[] = '`status` = :status';
-						$values['status'] = $_GET['status'];
-					}
-
-					if (isset($_GET['text']) && $_GET['text'])
-					{
-						$where[] = '(`name` LIKE :text OR `email` LIKE :text OR `url` LIKE :text OR `body` LIKE :text)';
-						$values['text'] = '%' . $_GET['text'] . '%';
-					}
-
-					$where || $where[] = iaDb::EMPTY_CONDITION;
-
-					$where = implode(' OR ', $where);
-					$iaDb->bind($where, $values);
-
-					$output = array(
-						'total' => $iaDb->one(iaDb::STMT_COUNT_ROWS, $where),
-						'data' => $iaDb->all("`id`, `name`, `email`, `url`, `body`, IF(`reply` IS NULL, 0, 1)`replied`, `date`, `status`, `lang`, 1 `update`, 1 `delete`", $where . $order, $start, $limit)
-					);
-			}
-
-			break;
-
-		case iaCore::ACTION_DELETE:
-
-			$output = $iaGrid->gridDelete($_POST, 'deleted');
-
-			break;
-
-		case iaCore::ACTION_EDIT:
-		
-			$output = $iaGrid->gridUpdate($_POST);
+		$this->_template = 'index';
 	}
 
-	if (isset($output))
+	protected function _indexPage(&$iaView)
 	{
-		$iaView->assign($output);
+		$iaView->grid('_IA_URL_plugins/' . $this->getPluginName() . '/js/admin/index');
 	}
-}
 
-if (iaView::REQUEST_HTML == $iaView->getRequestType())
-{
-	if (iaCore::ACTION_ADD == $pageAction || iaCore::ACTION_EDIT == $pageAction)
+	protected function _modifyGridParams(&$conditions, &$values, array $params)
 	{
-		// iaBreadcrumb::add(iaLanguage::get($pageAction . '_testimonial'), IA_ADMIN_URL . 'testimonials/' . $pageAction);
-
-		$id = 0;
-		$testimonials = array(
-			'date' => date(iaDb::DATE_FORMAT),
-			'lang' => IA_LANGUAGE,
-			'status' => iaCore::STATUS_ACTIVE
-		);
-
-		if (iaCore::ACTION_EDIT == $pageAction)
+		if (!empty($params['text']))
 		{
-			$id = (int)$iaCore->requestPath[0];
-			$testimonials = $iaDb->row(iaDb::ALL_COLUMNS_SELECTION, "`id` = '{$id}'");
+			$conditions[] = '(`name` LIKE :text OR `email` LIKE :text OR `url` LIKE :text OR `body` LIKE :text)';
+			$values['text'] = '%' . iaSanitize::sql($params['text']) . '%';
+		}
+	}
+
+	protected function _setDefaultValues(array &$entry)
+	{
+		$entry['name'] = '';
+		$entry['email'] = '';
+		$entry['url'] = '';
+		$entry['body'] = '';
+		$entry['reply'] = '';
+
+		$entry['date'] = date(iaDb::DATE_FORMAT);
+		$entry['lang'] = $this->_iaCore->iaView->language;
+		$entry['status'] = iaCore::STATUS_ACTIVE;
+	}
+
+	protected function _entryDelete($id)
+	{
+		$row = $this->getById($id);
+		$result = parent::_entryDelete($id);
+
+		if ($result && $row)
+		{
+			empty($row['avatar'])
+			|| $this->_iaCore->factory('field')->deleteUploadedFile('avatar', $this->getTable(), $id, $row['avatar']);
 		}
 
-		$iaCore->util();
+		return $result;
+	}
 
-		$testimonials = array(
-			'id' => isset($id) ? $id : 0,
-			'name' => iaUtil::checkPostParam('name', $testimonials),
-			'lang' => iaUtil::checkPostParam('lang', $testimonials),
-			'email' => iaUtil::checkPostParam('email', $testimonials),
-			'url' => iaUtil::checkPostParam('url', $testimonials),
-			'body' => iaUtil::checkPostParam('body', $testimonials),
-			'reply' => iaUtil::checkPostParam('reply', $testimonials) ? iaUtil::checkPostParam('reply', $testimonials) : NULL,
-			'avatar' => iaUtil::checkPostParam('avatar', $testimonials),
-			'date' => iaUtil::checkPostParam('date', $testimonials),
-			'status' => iaUtil::checkPostParam('status', $testimonials)
-		);
+	protected function _preSaveEntry(array &$entry, array $data, $action)
+	{
+		parent::_preSaveEntry($entry, $data, $action);
 
-		if (isset($_POST['save']))
+		iaUtil::loadUTF8Functions();
+
+		$entry['url'] = !empty($entry['url']) && 'http://' != substr($entry['url'], 0, 7) ? 'http://' . $entry['url'] : $entry['url'];
+		empty($entry['reply']) && $entry['reply'] = null; // NULL is a marker
+
+		$len = array('min' => $this->_iaCore->get('testimonials_min_len'), 'max' => $this->_iaCore->get('testimonials_max_len'));
+		$body_len = utf8_strlen(trim(strip_tags($entry['body'])));
+
+		if (empty($entry['name']))
 		{
-			iaUtil::loadUTF8Functions('ascii', 'validation', 'bad', 'utf8_to_ascii');
-
-			$error = false;
-			$messages = array();
-
-			$testimonials['status'] = in_array($testimonials['status'], array('active', 'approval')) ? $testimonials['status'] : 'approval';
-			$testimonials['lang'] = array_key_exists($testimonials['lang'], $iaCore->languages) ? $testimonials['lang'] : IA_LANGUAGE;
-			$testimonials['url'] = !empty($testimonials['url']) && 'http://' != substr($testimonials['url'], 0, 7) ? 'http://' . $testimonials['url'] : $testimonials['url'];
-			$testimonials['body'] = iaUtil::safeHTML($testimonials['body']);
-			$testimonials['reply'] = iaUtil::safeHTML($testimonials['reply']) ? iaUtil::safeHTML($testimonials['reply']) : NULL;
-			$testimonials['avatar'] = iaSanitize::html($testimonials['avatar']);
-			$testimonials['name'] = iaSanitize::html($testimonials['name']);
-			$testimonials['email'] = iaSanitize::html($testimonials['email']);
-			$testimonials['url'] = iaSanitize::html($testimonials['url']);
-			$testimonials['date'] = iaSanitize::html($testimonials['date']);
-			$len = array('min' => $iaCore->get('testimonials_min_len'), 'max' => $iaCore->get('testimonials_max_len'));
-			$body_len = utf8_strlen(trim(strip_tags($testimonials['body'])));
-
-			if (empty($testimonials['name']))
-			{
-				$error = true;
-				$messages[] = iaLanguage::get('incorrect_fullname');
-			}
-
-			if ($body_len < $len['min'] || $body_len > $len['max'])
-			{
-				$error = true;
-				$messages[] = iaLanguage::getf('testimon_body_len', array('num' => $len['min'] . '-' . $len['max']));
-			}
-
-			if (!empty($testimonials['url']) && !iaValidate::isUrl($testimonials['url']))
-			{
-				$error = true;
-				$messages[] = iaLanguage::get('error_url');
-			}
-
-			if (!$error)
-			{
-				if (isset($_FILES['photo']) && !$testimonials['avatar'])
-				{
-					$photo = $_FILES['photo'];
-
-					if (!empty($photo['name']) && !in_array($photo['type'], array('image/gif', 'image/jpeg', 'image/pjpeg', 'image/png')))
-					{
-						$error = true;
-						$messages[] = iaLanguage::get('unsupported_image_type');
-					}
-
-					$iaPicture = $iaCore->factory('picture');
-					$tok = 'photo_' . iaUtil::generateToken();
-
-					$imageInfo = array(
-						'image_width' => 500,
-						'image_height' => 500,
-						'resize_mode' => iaPicture::CROP
-					);
-
-					$name = $iaPicture->processImage($photo, 'testimonials/', $tok, $imageInfo);
-					$testimonials['avatar'] = $name;
-				}
-
-				if (iaCore::ACTION_EDIT == $pageAction)
-				{
-
-					$testimonials['id'] = $id;
-					$iaDb->update($testimonials);
-					$messages[] = iaLanguage::get('saved');
-				}
-				else
-				{
-					$id = $iaDb->insert($testimonials);
-					$messages[] = iaLanguage::get('testimonials_added');
-				}
-
-				$iaView->setMessages($messages, $error ? iaView::ERROR : iaView::SUCCESS);
-
-				if (isset($_POST['goto']))
-				{
-					$url = IA_ADMIN_URL . 'testimonials/';
-					iaUtil::post_goto(array(
-						'add' => $url . 'add/',
-						'list' => $url,
-						'stay' => $url . 'edit/' . $id . '/',
-					));
-				}
-				else
-				{
-					iaUtil::go_to(IA_ADMIN_URL . 'testimonials/');
-				}
-			}
-
-			$iaView->setMessages($messages, $error ? iaView::ERROR : iaView::SUCCESS);
+			$this->addMessage('incorrect_fullname');
 		}
 
-		$options = array('list' => 'go_to_list', 'add' => 'add_another_one', 'stay' => 'stay_here');
-		$iaView->assign('goto', $options);
+		if ($body_len < $len['min'] || $body_len > $len['max'])
+		{
+			$this->addMessage(iaLanguage::getf('testimon_body_len', array('num' => $len['min'] . '-' . $len['max'])), false);
+		}
 
-		$iaView->assign('testimonials', $testimonials);
-		$iaView->display('index');
+		if (!empty($entry['url']) && !iaValidate::isUrl($entry['url']))
+		{
+			$this->addMessage('error_url');
+		}
+
+		if (!$this->getMessages() && isset($_FILES['avatar']['error']) && !$_FILES['avatar']['error'])
+		{
+			try
+			{
+				$iaField = $this->_iaCore->factory('field');
+
+				$path = $iaField->uploadImage($_FILES['avatar'], null, null, 100, 100, 'crop', 'testimonials', 'photo_');
+
+				empty($entry['avatar']) || $iaField->deleteUploadedFile('avatar', $this->getTable(), $this->getEntryId(), $entry['avatar']);
+				$entry['avatar'] = $path;
+			}
+			catch (Exception $e)
+			{
+				$this->addMessage($e->getMessage(), false);
+			}
+		}
+
+		return !$this->getMessages();
 	}
-	else
+
+	protected function _postSaveEntry(array &$entry, array $data, $action)
 	{
-		$iaView->grid('_IA_URL_plugins/testimonials/js/admin/index');
+		if (iaCore::ACTION_DELETE == $action)
+		{
+			$this->_iaCore->factory('log')->write(iaLog::ACTION_DELETE,
+				array('item' => 'testimonial', 'name' => $entry['name'], 'id' => (int)$this->getEntryId()));
+		}
 	}
 }
-
-$iaDb->resetTable();

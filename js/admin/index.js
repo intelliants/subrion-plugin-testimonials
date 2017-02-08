@@ -1,12 +1,8 @@
 Ext.onReady(function()
 {
-	var pageUrl = intelli.config.admin_url + '/testimonials/';
-
 	if (Ext.get('js-grid-placeholder'))
 	{
-		var urlParam = intelli.urlVal('status');
-
-		intelli.testimonials =
+		var grid = new IntelliGrid(
 		{
 			columns: [
 				'selection',
@@ -28,12 +24,10 @@ Ext.onReady(function()
 			],
 			sorters: [{property: 'date', direction: 'DESC'}],
 			expanderTemplate: '{body}',
-			fields: ['body'],
-			storeParams: urlParam ? {status: urlParam} : null,
-			url: pageUrl
-		};
-		intelli.testimonials = new IntelliGrid(intelli.testimonials, false);
-		intelli.testimonials.toolbar = Ext.create('Ext.Toolbar', {items:[
+			fields: ['body']
+		}, false);
+
+		grid.toolbar = Ext.create('Ext.Toolbar', {items:[
 		{
 			emptyText: _t('text'),
 			name: 'text',
@@ -46,24 +40,19 @@ Ext.onReady(function()
 			emptyText: _t('status'),
 			id: 'fltStatus',
 			name: 'status',
-			store: intelli.testimonials.stores.statuses,
+			store: grid.stores.statuses,
 			typeAhead: true,
 			valueField: 'value',
 			xtype: 'combo'
 		},{
-			handler: function(){intelli.gridHelper.search(intelli.testimonials);},
+			handler: function(){intelli.gridHelper.search(grid);},
 			id: 'fltBtn',
 			text: '<i class="i-search"></i> ' + _t('search')
 		},{
-			handler: function(){intelli.gridHelper.search(intelli.testimonials, true);},
+			handler: function(){intelli.gridHelper.search(grid, true);},
 			text: '<i class="i-close"></i> ' + _t('reset')
 		}]});
 
-		if (urlParam)
-		{
-			Ext.getCmp('fltStatus').setValue(urlParam);
-		}
-
-		intelli.testimonials.init();
+		grid.init();
 	}
 });
