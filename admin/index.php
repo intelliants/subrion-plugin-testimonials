@@ -24,7 +24,7 @@
  *
  ******************************************************************************/
 
-class iaBackendController extends iaAbstractControllerPluginBackend
+class iaBackendController extends iaAbstractControllerModuleBackend
 {
 	protected $_name = 'testimonials';
 
@@ -41,7 +41,7 @@ class iaBackendController extends iaAbstractControllerPluginBackend
 
 	protected function _indexPage(&$iaView)
 	{
-		$iaView->grid('_IA_URL_plugins/' . $this->getPluginName() . '/js/admin/index');
+		$iaView->grid('_IA_URL_modules/' . $this->getModuleName() . '/js/admin/index');
 	}
 
 	protected function _modifyGridParams(&$conditions, &$values, array $params)

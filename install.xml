@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<plugin name="testimonials">
+<module name="testimonials" type="plugin">
 	<title>Testimonials</title>
 	<summary>Allows to display testimonials section at the site</summary>
 	<author>Intelliants LLC</author>
@@ -106,4 +106,4 @@ DROP TABLE IF EXISTS `{prefix}testimonials`;
 			]]>
 		</sql>
 	</uninstall>
-</plugin>
+</module>
