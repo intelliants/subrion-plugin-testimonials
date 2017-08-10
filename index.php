@@ -34,7 +34,7 @@ if (iaView::REQUEST_HTML == $iaView->getRequestType()) {
         if (!$id) {
             return iaView::errorPage(iaView::ERROR_NOT_FOUND);
         }
-        $testimonialEntry = $iaDb->row(iaDb::ALL_COLUMNS_SELECTION, iaDb::convertIds($id));
+        $testimonialEntry = $iaTestimonial->getById($id);
 
         if (empty($testimonialEntry)) {
             return iaView::errorPage(iaView::ERROR_NOT_FOUND);
@@ -45,8 +45,8 @@ if (iaView::REQUEST_HTML == $iaView->getRequestType()) {
             'url' => IA_SELF,
             'description' => $testimonialEntry['body']
         );
-        if ($testimonialEntry['avatar']) {
-            $openGraph['image'] = IA_CLEAR_URL . 'uploads/' . $testimonialEntry['avatar'];
+        if ($image = $testimonialEntry['avatar']) {
+            $openGraph['image'] = IA_CLEAR_URL . 'uploads/' . $image['path'] . 'original/' . $image['file'];
         }
         $iaView->set('og', $openGraph);
 
@@ -78,4 +78,3 @@ if (iaView::REQUEST_HTML == $iaView->getRequestType()) {
 
     $iaView->display('index');
 }
-
