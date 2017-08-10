@@ -23,142 +23,59 @@
  * @link http://www.subrion.org/
  *
  ******************************************************************************/
+if (iaView::REQUEST_HTML == $iaView->getRequestType()) {
+    $iaDb->setTable('testimonials');
 
-if (iaView::REQUEST_HTML == $iaView->getRequestType())
-{
-	$iaDb->setTable('testimonials');
+    $iaTestimonial = $iaCore->factoryModule('testimonial', 'testimonials');
 
-	if (iaCore::ACTION_ADD == $pageAction)
-	{
-		$errors = array();
+    if (isset($iaCore->requestPath[0])) {
+        $id = (int)$iaCore->requestPath[0];
 
-		if (isset($_POST['body']))
-		{
-			iaUtil::loadUTF8Functions();
+        if (!$id) {
+            return iaView::errorPage(iaView::ERROR_NOT_FOUND);
+        }
+        $testimonialEntry = $iaDb->row(iaDb::ALL_COLUMNS_SELECTION, iaDb::convertIds($id));
 
-			$data = array(
-				'url' => $_POST['url'],
-				'name' => $_POST['name'],
-				'email' => $_POST['email'],
-				'status' => $iaCore->get('testimonials_approve') ? iaCore::STATUS_ACTIVE : iaCore::STATUS_INACTIVE,
-				'lang' => $iaView->language,
-				'date' => date(iaDb::DATE_FORMAT),
-				'body' => $_POST['body']
-			);
+        if (empty($testimonialEntry)) {
+            return iaView::errorPage(iaView::ERROR_NOT_FOUND);
+        }
 
-			$body_len = utf8_strlen($data['body']);
+        $openGraph = array(
+            'title' => 'Testimonial: ' . $testimonialEntry['name'],
+            'url' => IA_SELF,
+            'description' => $testimonialEntry['body']
+        );
+        if ($testimonialEntry['avatar']) {
+            $openGraph['image'] = IA_CLEAR_URL . 'uploads/' . $testimonialEntry['avatar'];
+        }
+        $iaView->set('og', $openGraph);
 
-			if (empty($data['name']))
-			{
-				$errors[] = iaLanguage::get('incorrect_fullname');
-			}
+        iaBreadcrumb::toEnd($testimonialEntry['name'], IA_SELF);
+        $iaView->assign('testimonial', $testimonialEntry);
+    } else {
+        iaLanguage::set('no_testimonials_yet', iaLanguage::get('no_testimonials_yet', array('url' => IA_URL)));
 
-			$len = array('min' => $iaCore->get('testimonials_min_len'), 'max' => $iaCore->get('testimonials_max_len')); // min and max message length
-			if ($len['min'] > $body_len || $len['max'] < $body_len)
-			{
-				$errors[] = iaLanguage::getf('testimon_body_len', array('num' => $len['min'] . '-' . $len['max']));
-			}
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 0;
+        $page = ($page < 1) ? 1 : $page;
 
-			if (!iaUsers::hasIdentity() && !iaValidate::isCaptchaValid())
-			{
-				$errors[] = iaLanguage::get('confirmation_code_incorrect');
-			}
+        $limit = (int)$iaCore->get('testimonials_num_on_page');
 
-			if ($data['url'] != '' && !iaValidate::isUrl($data['url']))
-			{
-				$errors[] = iaLanguage::get('error_url');
-			}
+        $pagination = array(
+            'start' => ($page - 1) * $limit,
+            'limit' => $limit,
+            'template' => IA_URL . 'testimonials/?page={page}'
+        );
 
-			if (!iaValidate::isEmail($data['email']))
-			{
-				$errors[] = iaLanguage::get('error_email_incorrect');
-			}
+        $entries = $iaTestimonial->get("`date` <= NOW()", $pagination['start'], $pagination['limit']);
 
-			if (!$errors && isset($_FILES['avatar']['error']) && !$_FILES['avatar']['error'])
-			{
-				try
-				{
-					$data['avatar'] = $iaCore->factory('field')->uploadImage($_FILES['avatar'], null, null,
-						100, 100, 'crop', 'testimonials', 'photo_');
-				}
-				catch (Exception $e)
-				{
-					$errors[] = $e->getMessage();
-				}
-			}
+        $pagination['total'] = $iaTestimonial->getFoundRows();
 
-			if (!$errors)
-			{
-				$iaDb->insert($data);
-				$iaView->setMessages(iaLanguage::get('testimonials_added'), iaView::SUCCESS);
+        $iaView->assign('testimonials', $entries);
+        $iaView->assign('pagination', $pagination);
+    }
 
-				iaUtil::go_to(IA_URL . 'testimonials/');
-			}
+    $iaDb->resetTable();
 
-			$iaView->setMessages($errors);
-		}
-
-		iaBreadcrumb::replaceEnd(iaLanguage::get('add_testimonial'), IA_URL . 'testimonials/add/');
-
-		$iaView->title(iaLanguage::get('add_testimonial'));
-	}
-	else
-	{
-		if (isset($iaCore->requestPath[0]))
-		{
-			$id = (int)$iaCore->requestPath[0];
-
-			if (!$id)
-			{
-				return iaView::errorPage(iaView::ERROR_NOT_FOUND);
-			}
-
-			$testimonialEntry = $iaDb->row(iaDb::ALL_COLUMNS_SELECTION, iaDb::convertIds($id));
-
-			if (empty($testimonialEntry))
-			{
-				return iaView::errorPage(iaView::ERROR_NOT_FOUND);
-			}
-
-			$openGraph = array(
-				'title' => 'Testimonial: ' . $testimonialEntry['name'],
-				'url' => IA_SELF,
-				'description' => $testimonialEntry['body']
-			);
-			if ($testimonialEntry['avatar'])
-			{
-				$openGraph['image'] = IA_CLEAR_URL . 'uploads/' . $testimonialEntry['avatar'];
-			}
-			$iaView->set('og', $openGraph);
-
-			iaBreadcrumb::toEnd($testimonialEntry['name'], IA_SELF);
-			$iaView->assign('testimonial', $testimonialEntry);
-		}
-		else
-		{
-			iaLanguage::set('no_testimonials_yet', iaLanguage::get('no_testimonials_yet', array('url' => IA_URL)));
-
-			$page = isset($_GET['page']) ? (int)$_GET['page'] : 0;
-			$page = ($page < 1) ? 1 : $page;
-
-			$limit = (int)$iaCore->get('testimonials_num_on_page');
-
-			$pagination = array(
-				'start' => ($page - 1) * $limit,
-				'limit' => $limit,
-				'template' => IA_URL . 'testimonials/?page={page}'
-			);
-
-			$entries = $iaDb->all('SQL_CALC_FOUND_ROWS *', "`status`='active' AND `lang`='" . IA_LANGUAGE . "' AND `date` <= NOW() ORDER BY `date` DESC",
-				$pagination['start'], $pagination['limit']);
-			$pagination['total'] = $iaDb->foundRows();
-
-			$iaView->assign('testimonials', $entries);
-			$iaView->assign('pagination', $pagination);
-		}
-	}
-
-	$iaDb->resetTable();
-
-	$iaView->display('index');
+    $iaView->display('index');
 }
+

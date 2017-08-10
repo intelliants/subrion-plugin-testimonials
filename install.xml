@@ -8,18 +8,39 @@
 	<date>2017-02-08</date>
 	<compatibility>4.1</compatibility>
 
+	<items>
+		<item payable="0">testimonials</item>
+	</items>
+
 	<actions>
-		<action name="testimonials_view" url="testimonials/" icon="list" order="1" pages="testimonials:add, testimonials:edit">View</action>
-		<action name="testimonials_add" url="testimonials/add/" icon="plus" order="2" pages="testimonials">Add</action>
+		<action name="testimonials_view" url="testimonials/testimonials/" icon="list" order="1" pages="testimonials:add, testimonials:edit">View</action>
+		<action name="testimonials_add" url="testimonials/testimonials/add/" icon="plus" order="2" pages="testimonials">Add</action>
 	</actions>
 
 	<adminpages>
-		<page group="content" name="testimonials" menus="menu" url="testimonials/" order="50">Testimonials</page>
+		<page group="content" name="testimonials" menus="menu" url="testimonials/testimonials/" order="50">Testimonials</page>
 	</adminpages>
+
+	<items>
+		<item payable="0">news</item>
+	</items>
+
+	<fields_groups>
+		<group item="testimonials" name="general" title="General"><![CDATA[]]></group>
+	</fields_groups>
+
+	<fields>
+		<field name="name" item="testimonials" type="text" group="general" length="150" required="1" multilingual="1" page="testimonials_add, testimonials_view">Name</field>
+		<field name="email" item="testimonials" type="text" group="general" length="50" page="testimonials_add, testimonials_view">E-mail</field>
+		<field name="url" item="testimonials" type="text" group="general" length="100" page="testimonials_add, testimonials_view">URL</field>
+		<field name="avatar" item="testimonials" type="image" group="general" thumb_width="400" thumb_height="400" width="1200" height="1200" prefix="testimonial_" page="testimonials_add, testimonials_view">Avatar</field>
+		<field name="body" item="testimonials" type="textarea" group="general" editor="1" required="1" multilingual="1" page="testimonials_add, testimonials_view">Body</field>
+		<field name="reply" item="testimonials" type="textarea" group="general" editor="1" multilingual="1" required="0">Reply</field>
+	</fields>
 
 	<pages>
 		<page name="testimonials" url="testimonials/" menus="bottom">Testimonials</page>
-		<page name="testimonials_add" url="testimonials/add/" action="add" parent="testimonials">Add testimonial</page>
+		<page name="testimonials_add" url="testimonials/add/" action="add" filename="manage">Add testimonial</page>
 	</pages>
 
 	<permissions>
@@ -64,19 +85,11 @@
 	</tooltips>
 
 	<hooks>
-		<hook name="bootstrap" page_type="front">
-			<![CDATA[
-if (iaView::REQUEST_HTML == $iaView->getRequestType())
-{
-	$array = $iaDb->all(iaDb::ALL_COLUMNS_SELECTION, "`status` = 'active' AND `lang` = '".IA_LANGUAGE."' AND `date` <= NOW() ORDER BY RAND()", 0, $iaCore->get('testimonials_number'), 'testimonials');
-	$iaView->assign('block_testimonials', $array);
-}
-			]]>
-		</hook>
+		<hook name="phpCoreBeforePageDisplay" page_type="front" filename="hook.blocks-load"><![CDATA[]]></hook>
 	</hooks>
 
 	<blocks>
-		<block title="Testimonials" name="testimonials" position="verybottom" collapsible="0" type="smarty" filename="block.testimonials"><![CDATA[]]></block>
+		<block title="Testimonials" name="testimonials" position="bottom" collapsible="0" type="smarty" filename="block.testimonials"><![CDATA[]]></block>
 	</blocks>
 
 	<install>
@@ -84,15 +97,9 @@ if (iaView::REQUEST_HTML == $iaView->getRequestType())
 			<![CDATA[
 CREATE TABLE IF NOT EXISTS `{prefix}testimonials` (
 	`id` smallint(5) unsigned NOT NULL auto_increment,
-	`name` varchar(150) NOT NULL,
-	`avatar` text NULL,
-	`email` varchar(50) default NULL,
-	`url` varchar(150) default NULL,
 	`body` text NOT NULL,
-	`reply` text NULL,
 	`date` date NOT NULL,
 	`status` enum('inactive','active') NOT NULL default 'inactive',
-	`lang` varchar(2) NOT NULL,
 	PRIMARY KEY  (`id`)
 ) {mysql_version};
 			]]>

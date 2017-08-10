@@ -1,4 +1,5 @@
 <?php
+
 /******************************************************************************
  *
  * Subrion - open source content management system
@@ -23,116 +24,119 @@
  * @link http://www.subrion.org/
  *
  ******************************************************************************/
-
 class iaBackendController extends iaAbstractControllerModuleBackend
 {
-	protected $_name = 'testimonials';
+    protected $_name = 'testimonials';
 
-	protected $_gridColumns = '`id`, `name`, `email`, `url`, `body`, IF(`reply` IS NULL, 0, 1) `replied`, `date`, `status`, `lang`, 1 `update`, 1 `delete`';
-	protected $_gridFilters = array('status' => self::EQUAL);
+    protected $_itemName = 'testimonials';
 
-	protected $_phraseAddSuccess = 'testimonials_added';
+//	protected $_gridColumns = '`id`, `name`, `email`, `url`, `body`, IF(`reply` IS NULL, 0, 1) `replied`, `date`, `status`, `lang`, 1 `update`, 1 `delete`';
+    protected $_gridColumns = ['id', 'name', 'email', 'body', 'status', 'date'];
+    protected $_gridFilters = array('status' => self::EQUAL);
+
+    protected $_phraseAddSuccess = 'testimonials_added';
 
 
-	public function init()
-	{
-		$this->_template = 'index';
-	}
+    public function init()
+    {
+        $this->_template = 'index';
+    }
 
-	protected function _indexPage(&$iaView)
-	{
-		$iaView->grid('_IA_URL_modules/' . $this->getModuleName() . '/js/admin/index');
-	}
+    protected function _indexPage(&$iaView)
+    {
+        $iaView->grid('_IA_URL_modules/' . $this->getModuleName() . '/js/admin/index');
+    }
 
-	protected function _modifyGridParams(&$conditions, &$values, array $params)
-	{
-		if (!empty($params['text']))
-		{
-			$conditions[] = '(`name` LIKE :text OR `email` LIKE :text OR `url` LIKE :text OR `body` LIKE :text)';
-			$values['text'] = '%' . iaSanitize::sql($params['text']) . '%';
-		}
-	}
+    protected function _modifyGridParams(&$conditions, &$values, array $params)
+    {
+        if (!empty($params['text'])) {
+            $conditions[] = '(`name` LIKE :text OR `email` LIKE :text OR `url` LIKE :text OR `body` LIKE :text)';
+            $values['text'] = '%' . iaSanitize::sql($params['text']) . '%';
+        }
+    }
 
-	protected function _setDefaultValues(array &$entry)
-	{
-		$entry['name'] = '';
-		$entry['email'] = '';
-		$entry['url'] = '';
-		$entry['body'] = '';
-		$entry['reply'] = '';
+    protected function _setDefaultValues(array &$entry)
+    {
+        $entry['date'] = date(iaDb::DATE_FORMAT);
+        $entry['status'] = iaCore::STATUS_ACTIVE;
+    }
 
-		$entry['date'] = date(iaDb::DATE_FORMAT);
-		$entry['lang'] = $this->_iaCore->iaView->language;
-		$entry['status'] = iaCore::STATUS_ACTIVE;
-	}
+    protected function _entryAdd(array $entryData)
+    {
+        $entryData['date'] = date(iaDb::DATE_FORMAT);
 
-	protected function _entryDelete($id)
-	{
-		$row = $this->getById($id);
-		$result = parent::_entryDelete($id);
+        return parent::_entryAdd($entryData);
+    }
 
-		if ($result && $row)
-		{
-			empty($row['avatar'])
-			|| $this->_iaCore->factory('field')->deleteUploadedFile('avatar', $this->getTable(), $id, $row['avatar']);
-		}
+    protected function _entryDelete($id)
+    {
+        $row = $this->getById($id);
+        $result = parent::_entryDelete($id);
 
-		return $result;
-	}
+        if ($result && $row) {
+            empty($row['avatar'])
+            || $this->_iaCore->factory('field')->deleteUploadedFile('avatar', $this->getTable(), $id, $row['avatar']);
+        }
 
-	protected function _preSaveEntry(array &$entry, array $data, $action)
-	{
-		parent::_preSaveEntry($entry, $data, $action);
+        return $result;
+    }
 
-		iaUtil::loadUTF8Functions();
+    protected function _preSaveEntry(array &$entry, array $data, $action)
+    {
+        parent::_preSaveEntry($entry, $data, $action);
 
-		$entry['url'] = !empty($entry['url']) && 'http://' != substr($entry['url'], 0, 7) ? 'http://' . $entry['url'] : $entry['url'];
-		empty($entry['reply']) && $entry['reply'] = null; // NULL is a marker
+        iaUtil::loadUTF8Functions();
 
-		$len = array('min' => $this->_iaCore->get('testimonials_min_len'), 'max' => $this->_iaCore->get('testimonials_max_len'));
-		$body_len = utf8_strlen(trim(strip_tags($entry['body'])));
+        if (!empty($entry['url']) && !iaValidate::isUrl($entry['url'])) {
+            if (iaValidate::isUrl($entry['url'], false)) {
+                $entry['url'] = 'http://' . $entry['url'];
 
-		if (empty($entry['name']))
-		{
-			$this->addMessage('incorrect_fullname');
-		}
+            } else {
+                $this->addMessage('error_url');
+            }
+        }
 
-		if ($body_len < $len['min'] || $body_len > $len['max'])
-		{
-			$this->addMessage(iaLanguage::getf('testimon_body_len', array('num' => $len['min'] . '-' . $len['max'])), false);
-		}
+        $len = array(
+            'min' => $this->_iaCore->get('testimonials_min_len'),
+            'max' => $this->_iaCore->get('testimonials_max_len')
+        );
 
-		if (!empty($entry['url']) && !iaValidate::isUrl($entry['url']))
-		{
-			$this->addMessage('error_url');
-		}
+        // TODO: check for multilingual
+        $body_len = utf8_strlen(trim(strip_tags($entry['body_' . $this->_iaCore->language['iso']])));
 
-		if (!$this->getMessages() && isset($_FILES['avatar']['error']) && !$_FILES['avatar']['error'])
-		{
-			try
-			{
-				$iaField = $this->_iaCore->factory('field');
+        if ($body_len < $len['min'] || $body_len > $len['max']) {
+            $this->addMessage(iaLanguage::getf('testimon_body_len', array('num' => $len['min'] . '-' . $len['max'])),
+                false);
+        }
 
-				$path = $iaField->uploadImage($_FILES['avatar'], null, null, 100, 100, 'crop', 'testimonials', 'photo_');
+        if (!empty($entry['url']) && !iaValidate::isUrl($entry['url'])) {
+            $this->addMessage('error_url');
+        }
 
-				empty($entry['avatar']) || $iaField->deleteUploadedFile('avatar', $this->getTable(), $this->getEntryId(), $entry['avatar']);
-				$entry['avatar'] = $path;
-			}
-			catch (Exception $e)
-			{
-				$this->addMessage($e->getMessage(), false);
-			}
-		}
+//		if (!$this->getMessages() && isset($_FILES['avatar']['error']) && !$_FILES['avatar']['error'])
+//		{
+//			try
+//			{
+//				$iaField = $this->_iaCore->factory('field');
+//
+//				$path = $iaField->uploadImage($_FILES['avatar'], null, null, 100, 100, 'crop', 'testimonials', 'photo_');
+//
+//				empty($entry['avatar']) || $iaField->deleteUploadedFile('avatar', $this->getTable(), $this->getEntryId(), $entry['avatar']);
+//				$entry['avatar'] = $path;
+//			}
+//			catch (Exception $e)
+//			{
+//				$this->addMessage($e->getMessage(), false);
+//			}
+//		}
+        return !$this->getMessages();
+    }
 
-		return !$this->getMessages();
-	}
-
-	protected function _postSaveEntry(array &$entry, array $data, $action)
-	{
-		if (iaCore::ACTION_DELETE == $action)
-		{
-			$this->_iaCore->factory('log')->write(iaLog::ACTION_DELETE,
-				array('item' => 'testimonial', 'name' => $entry['name'], 'id' => (int)$this->getEntryId()));
-		}
-	}
+    protected function _postSaveEntry(array &$entry, array $data, $action)
+    {
+        if (iaCore::ACTION_DELETE == $action) {
+            $this->_iaCore->factory('log')->write(iaLog::ACTION_DELETE,
+                array('item' => 'testimonial', 'name' => $entry['name'], 'id' => (int)$this->getEntryId()));
+        }
+    }
 }
