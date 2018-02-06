@@ -40,11 +40,11 @@
 
 	<pages>
 		<page name="testimonials" url="testimonials/" menus="bottom">Testimonials</page>
-		<page name="testimonials_add" url="testimonials/add/" action="add" filename="manage">Add testimonial</page>
+		<page name="testimonials_add" url="testimonials/add/" filename="manage" menus="account" action="add" fields_item="testimonials" parent="testimonials">Add testimonial</page>
 	</pages>
 
 	<permissions>
-		<object id="testimonials" action="add" access="1">Add testimonial</object>
+		<permission type="group" type_id="8" access="1" action="testimonials_add">Add testimonial</permission>
 	</permissions>
 
 	<phrases>
