@@ -4,12 +4,12 @@
 	<summary>Allows to display testimonials section at the site</summary>
 	<author>Intelliants LLC</author>
 	<contributor>Intelliants LLC</contributor>
-	<version>4.1.0</version>
-	<date>2017-02-08</date>
-	<compatibility>4.1</compatibility>
+	<version>4.2.0</version>
+	<date>2018-03-07</date>
+	<compatibility>4.2</compatibility>
 
 	<items>
-		<item payable="0">testimonials</item>
+		<item payable="0">testimonial</item>
 	</items>
 
 	<actions>
@@ -21,26 +21,22 @@
 		<page group="content" name="testimonials" menus="menu" url="testimonials/testimonials/" order="50">Testimonials</page>
 	</adminpages>
 
-	<items>
-		<item payable="0">news</item>
-	</items>
-
 	<fields_groups>
-		<group item="testimonials" name="general" title="General"><![CDATA[]]></group>
+		<group item="testimonial" name="general" title="General"><![CDATA[]]></group>
 	</fields_groups>
 
 	<fields>
-		<field name="name" item="testimonials" type="text" group="general" length="150" required="1" multilingual="1" page="testimonials_add, testimonials_view">Name</field>
-		<field name="email" item="testimonials" type="text" group="general" length="50" page="testimonials_add, testimonials_view">E-mail</field>
-		<field name="url" item="testimonials" type="text" group="general" length="100" page="testimonials_add, testimonials_view">URL</field>
-		<field name="avatar" item="testimonials" type="image" group="general" thumb_width="400" thumb_height="400" width="1200" height="1200" prefix="testimonial_" page="testimonials_add, testimonials_view">Avatar</field>
-		<field name="body" item="testimonials" type="textarea" group="general" editor="1" required="1" multilingual="1" page="testimonials_add, testimonials_view">Body</field>
-		<field name="reply" item="testimonials" type="textarea" group="general" editor="1" multilingual="1" required="0">Reply</field>
+		<field name="name" item="testimonial" type="text" group="general" length="150" required="1" multilingual="1" page="testimonials_add, testimonials_view">Name</field>
+		<field name="email" item="testimonial" type="text" group="general" length="50" page="testimonials_add, testimonials_view">E-mail</field>
+		<field name="url" item="testimonial" type="text" group="general" length="100" page="testimonials_add, testimonials_view">URL</field>
+		<field name="avatar" item="testimonial" type="image" group="general" thumb_width="400" thumb_height="400" width="1200" height="1200" prefix="testimonial_" page="testimonials_add, testimonials_view">Avatar</field>
+		<field name="body" item="testimonial" type="textarea" group="general" editor="1" required="1" multilingual="1" page="testimonials_add, testimonials_view">Body</field>
+		<field name="reply" item="testimonial" type="textarea" group="general" editor="1" multilingual="1" required="0">Reply</field>
 	</fields>
 
 	<pages>
 		<page name="testimonials" url="testimonials/" menus="bottom">Testimonials</page>
-		<page name="testimonials_add" url="testimonials/add/" filename="manage" menus="account" action="add" fields_item="testimonials" parent="testimonials">Add testimonial</page>
+		<page name="testimonials_add" url="testimonials/add/" filename="manage" menus="account" action="add" fields_item="testimonial" parent="testimonials">Add testimonial</page>
 	</pages>
 
 	<permissions>
@@ -75,21 +71,16 @@
 	<config group="testimonials" type="text" name="testimonials_number" description="Number of displayed Testimonials in Box">4</config>
 	<config group="testimonials" type="text" name="testimonials_max" description="Testimonials Body Length for Testimonials block">300</config>
 	<config group="testimonials" type="text" name="testimonials_max_page" description="Testimonials Body Length for Testimonials page">350</config>
-	<config group="testimonials" type="radio" name="testimonials_use_editor" values="1,0" description="Use WYSIWYG editor for Testimonials Body">1</config>
 	<config group="testimonials" type="text" name="testimonials_num_on_page" description="Number of displayed Testimonials on a page">50</config>
 	<config group="testimonials" type="text" name="testimonials_max_len" description="Max testimonials text length">3000</config>
 	<config group="testimonials" type="text" name="testimonials_min_len" description="Min testimonials text length">10</config>
 
-	<tooltips>
-		<tooltip key="testimonials_use_editor"> on Add Testimonial page</tooltip>
-	</tooltips>
-
 	<hooks>
-		<hook name="phpCoreBeforePageDisplay" page_type="front" filename="hook.blocks-load"><![CDATA[]]></hook>
+		<hook name="phpCoreBeforePageDisplay" page_type="front" filename="hook.blocks-load.php"><![CDATA[]]></hook>
 	</hooks>
 
 	<blocks>
-		<block title="Testimonials" name="testimonials" position="bottom" collapsible="0" type="smarty" filename="block.testimonials"><![CDATA[]]></block>
+		<block title="Testimonials" name="testimonials" position="bottom" collapsible="0" type="smarty" filename="block.testimonials.tpl"><![CDATA[]]></block>
 	</blocks>
 
 	<install>

@@ -11,7 +11,7 @@
             {$testimonial.body|html_entity_decode:2:"UTF-8"}
         </div>
 
-        {if isset($testimonial.reply)}
+        {if !empty($testimonial.reply)}
             <div class="testimonial-view__reply m-b m-l p-l">
                 <h4>{lang key='admin_reply'}</h4>
                 {$testimonial.reply}

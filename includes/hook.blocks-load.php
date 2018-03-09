@@ -2,7 +2,7 @@
 /******************************************************************************
  *
  * Subrion - open source content management system
- * Copyright (C) 2017 Intelliants, LLC <https://intelliants.com>
+ * Copyright (C) 2018 Intelliants, LLC <https://intelliants.com>
  *
  * This file is part of Subrion.
  *
@@ -24,12 +24,10 @@
  *
  ******************************************************************************/
 
-if (iaView::REQUEST_HTML == $iaView->getRequestType())
-{
+if (iaView::REQUEST_HTML == $iaView->getRequestType()) {
     $iaTestimonial = $iaCore->factoryModule('testimonial', 'testimonials');
 
     if ($iaView->blockExists('testimonials')) {
-        $testimonials =[];
         $testimonials = $iaTestimonial->get('', null, $iaCore->get('testimonials_number'), 'RAND()');
         $iaView->assign('block_testimonials', $testimonials);
     }

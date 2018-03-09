@@ -1,9 +1,8 @@
 <?php
-
 /******************************************************************************
  *
  * Subrion - open source content management system
- * Copyright (C) 2015 Intelliants, LLC <http://www.intelliants.com>
+ * Copyright (C) 2018 Intelliants, LLC <https://intelliants.com>
  *
  * This file is part of Subrion.
  *
@@ -21,14 +20,15 @@
  * along with Subrion. If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * @link http://www.subrion.org/
+ * @link https://subrion.org/
  *
  ******************************************************************************/
+
 class iaBackendController extends iaAbstractControllerModuleBackend
 {
     protected $_name = 'testimonials';
 
-    protected $_itemName = 'testimonials';
+    protected $_itemName = 'testimonial';
 
 //	protected $_gridColumns = '`id`, `name`, `email`, `url`, `body`, IF(`reply` IS NULL, 0, 1) `replied`, `date`, `status`, `lang`, 1 `update`, 1 `delete`';
     protected $_gridColumns = ['id', 'name', 'email', 'body', 'status', 'date'];

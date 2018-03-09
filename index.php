@@ -2,7 +2,7 @@
 /******************************************************************************
  *
  * Subrion - open source content management system
- * Copyright (C) 2015 Intelliants, LLC <http://www.intelliants.com>
+ * Copyright (C) 2018 Intelliants, LLC <https://intelliants.com>
  *
  * This file is part of Subrion.
  *
@@ -20,13 +20,14 @@
  * along with Subrion. If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * @link http://www.subrion.org/
+ * @link https://subrion.org/
  *
  ******************************************************************************/
+
 if (iaView::REQUEST_HTML == $iaView->getRequestType()) {
     $iaDb->setTable('testimonials');
 
-    $iaTestimonial = $iaCore->factoryModule('testimonial', 'testimonials');
+    $iaTestimonial = $iaCore->factoryModule('testimonial', IA_CURRENT_MODULE);
 
     if (isset($iaCore->requestPath[0])) {
         $id = (int)$iaCore->requestPath[0];

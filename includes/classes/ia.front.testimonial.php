@@ -2,7 +2,7 @@
 /******************************************************************************
  *
  * Subrion - open source content management system
- * Copyright (C) 2017 Intelliants, LLC <https://intelliants.com>
+ * Copyright (C) 2018 Intelliants, LLC <https://intelliants.com>
  *
  * This file is part of Subrion.
  *
@@ -28,14 +28,12 @@ class iaTestimonial extends abstractModuleFront
 {
     protected static $_table = 'testimonials';
 
-    protected $_itemName = 'testimonials';
+    protected $_itemName = 'testimonial';
 
     private $_foundRows;
 
     public function get($where, $start = null, $limit = null, $order = null)
     {
-
-
         $sql = <<<SQL
 SELECT SQL_CALC_FOUND_ROWS *
 FROM :table_testimonials
@@ -43,7 +41,7 @@ WHERE :where :status
 ORDER BY :order 
 LIMIT :start, :limit
 SQL;
-        $sql = iaDB::printf($sql,[
+        $sql = iaDB::printf($sql, [
             'table_testimonials' => self::getTable(true),
             'where' => $where ? $where . ' AND' : '',
             'order' => $order ? $order : '`date` DESC',
@@ -65,5 +63,3 @@ SQL;
         return $this->_foundRows;
     }
 }
-
-
